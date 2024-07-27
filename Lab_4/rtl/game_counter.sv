@@ -14,11 +14,16 @@ always_ff @(posedge clk_4_i)
     begin
         if (!rst_ni) begin
             count_q <= 5'b11111;
-        end else begin
+        end else if (en_i) begin
             count_q <= count_d;
         end
     end
 
+always_comb
+    begin
+        count_d = count_q - 1;
+    end
+/*
 always_comb
     begin
         if (en_i) begin
@@ -26,7 +31,7 @@ always_comb
         end else begin
             count_d = count_q;
         end
-    end
+    end*/
 
 assign count_o = count_q;
 
