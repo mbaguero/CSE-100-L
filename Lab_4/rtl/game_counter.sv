@@ -23,6 +23,7 @@ always_comb
     begin
         count_d = count_q - 1;
     end
+
 /*
 always_comb
     begin
