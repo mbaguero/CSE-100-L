@@ -48,10 +48,10 @@ hex7seg hex7seg (
 
 logic [3:0] digit_d, digit_q;
 
-always_ff @(posedge)
+always_ff @(posedge clk_1k_i)
     begin
         if (rst_ni) begin
-            digit_q <= 4'b0
+            digit_q <= 4'b0;
         end else begin
             digit_q <= digit_d;
         end
