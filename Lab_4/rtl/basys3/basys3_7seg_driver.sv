@@ -22,7 +22,6 @@ module basys3_7seg_driver (
 logic [6:0] seg_n;
 
 
-// TODO
 
 assign dp = 1;
 assign anode_o[0] = 0;
