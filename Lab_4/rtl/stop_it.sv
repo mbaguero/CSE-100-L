@@ -76,6 +76,7 @@ lfsr lfsr_inst(
     //inputs
     .clk_i(clk_4_i),
     .rst_ni(rst_ni),
+    .next_i(go_i),
 
     //outputs
     .rand_o(rand_target_num)
@@ -118,7 +119,7 @@ always_comb begin
             digit0_o = game_count[3:0];
             digit1_en_o = 1;
             digit1_o = {game_count[4], 3'b0};
-            
+
             if (go_i) begin
                 state_d = STARTING;
             end else if (load_i) begin
@@ -246,20 +247,20 @@ always_comb begin
                     digit0_en_o = 1;
                     digit1_en_o = 1;
                     digit2_en_o = 1;
-                    digit3_en_o = 1; 
+                    digit3_en_o = 1;
                     led_off = 1;
                 end else begin
                     digit0_en_o = 0;
                     digit1_en_o = 0;
                     digit2_en_o = 0;
-                    digit3_en_o = 0; 
+                    digit3_en_o = 0;
                     led_off = 0;
                 end
                 if (!rst_ni) begin
                     state_d = WAITING_TO_START;
                 end
             end else if (!rst_count) begin
-                state_d = WAITING_TO_START;                
+                state_d = WAITING_TO_START;
             end
         end
         default: begin

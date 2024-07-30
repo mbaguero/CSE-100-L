@@ -29,16 +29,13 @@ always_ff @(posedge clk_i)
 always_comb
     begin
         shift_reg_d = shift_reg_q;
-
         if (shift_i) begin
             shift_reg_d = {shift_reg_q[14:0], 1'b1};
         end else if (load_i) begin
             shift_reg_d = switches_i;
-        end else if (off_i) begin
-            shift_reg_d = 16'b0;
         end
     end
 
-assign leds_o = shift_reg_q;
+assign leds_o = off_i ? 16'b0000000000000000 : shift_reg_q;
 
 endmodule

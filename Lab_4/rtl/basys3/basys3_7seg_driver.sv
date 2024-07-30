@@ -44,8 +44,8 @@ logic [3:0] anode_d, anode_q;
 always_ff @(posedge clk_1k_i)
     begin
         if (!rst_ni) begin
-            digit_q <= 4'b0;
-            anode_q <= 4'b0;
+            digit_q <= 4'b0000;
+            anode_q <= 4'b0000;
         end else begin
             digit_q <= digit_d;
             anode_q <= anode_d;
@@ -59,17 +59,17 @@ always_comb
 
         if (digit0_en_i) begin
             digit_d = digit0_i;
-            anode_d[0] = 0;
+            anode_d[0] = 1;
         end else if (digit1_en_i) begin
             digit_d = digit1_i;
-            anode_d[1] = 0;
+            anode_d[1] = 1;
         end else if (digit2_en_i) begin
             digit_d = digit2_i;
-            anode_d[2] = 0;
+            anode_d[2] = 1;
         end else if (digit3_en_i) begin
             digit_d = digit3_i;
-            anode_d[3] = 0;
-        end 
+            anode_d[3] = 1;
+        end
     end
 
 

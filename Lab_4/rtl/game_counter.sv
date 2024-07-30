@@ -18,7 +18,7 @@ always_ff @(posedge clk_4_i)
             count_q <= count_d;
         end
     end
-    
+
 assign count_d = count_q - 1;
 
 assign count_o = count_q;

@@ -46,12 +46,11 @@ logic clk_4;
 
 clk_100M_to_clk_4 clk_100M_to_clk_4_inst(
     .clk_100M_i(clk_100),
-    .rst_ni(rst_ni),
 
     .clk_4_o(clk_4)
 );
 
-logic [15:0] switches_load = 16'b1;
+logic [15:0] switches_load = 16'b1111111111111111;
 logic        digit0_en_o;
 logic [3:0]  digit0_o;
 logic        digit1_en_o;
@@ -87,7 +86,6 @@ logic clk_1k;
 
 clk_100M_to_clk_1k clk_100M_to_clk_1k_inst(
     .clk_100M_i(clk_100),
-    .rst_ni(rst_ni),
 
     .clk_1k_o(clk_1k)
 );
