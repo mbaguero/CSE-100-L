@@ -18,21 +18,8 @@ always_ff @(posedge clk_4_i)
             count_q <= count_d;
         end
     end
-
-always_comb
-    begin
-        count_d = count_q - 1;
-    end
-
-/*
-always_comb
-    begin
-        if (en_i) begin
-            count_d = count_q - 1;
-        end else begin
-            count_d = count_q;
-        end
-    end*/
+    
+assign count_d = count_q - 1;
 
 assign count_o = count_q;
 

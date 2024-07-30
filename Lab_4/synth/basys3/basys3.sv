@@ -17,15 +17,15 @@ logic [3:0] operation_i;
 
 always_comb begin
     if (btnU & btn_en_i) begin
-        operation_i = 4'b0001; // 
+        operation_i = 4'b0001; // stop_i
     end else if (btnL & btn_en_i) begin
-        operation_i = 4'b0010;
+        operation_i = 4'b0010; // load_i
     end else if (btnC & btn_en_i) begin
-        operation_i = 4'b0100;
+        operation_i = 4'b0100; // go_i
     end else if (btnR) begin
-        operation_i = 4'b1000;
+        operation_i = 4'b1000; // rst_ni
     end else begin
-        operation_i = 4'b0000;
+        operation_i = 4'b0000; //default
     end
 end
 
