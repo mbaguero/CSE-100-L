@@ -16,7 +16,7 @@ module basys3 (
 );
 
 logic go_i, stop_i, load_i, rst_ni;
-
+assign dp = 1;
 
 
 always_comb begin
@@ -24,7 +24,7 @@ always_comb begin
     stop_i = 0;
     load_i = 0;
     rst_ni = 0;
-    
+
     if (btnU) begin
         stop_i = 1'b1;
     end else if (btnL) begin
@@ -108,7 +108,6 @@ basys3_7seg_driver basys3_7seg_driver_inst(
     .digit3_i(digit3_o),
 
     //ouputs
-    .dp(dp),
     .anode_o(anode_o),
     .segments_o(segments_o)
 );

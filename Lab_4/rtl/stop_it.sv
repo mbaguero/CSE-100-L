@@ -22,8 +22,6 @@ module stop_it import stop_it_pkg::*; (
     output logic [3:0]  digit3_o
 );
 
-// Instantiate and drive all required nets and modules
-
 //TIME COUNTER
 logic time_en;
 logic [4:0] time_count;
@@ -85,7 +83,6 @@ lfsr lfsr_inst(
 
 
 //STATE MACHINE
-
 state_t state_d, state_q;
 always_ff @(posedge clk_4_i) begin
     if (!rst_ni) begin
@@ -113,7 +110,7 @@ always_comb begin
 
     unique case (state_q)
         WAITING_TO_START: begin
-            rst_count = 1; // turn on count reset
+            rst_count = 1;
             time_en = 0;
             game_en = 0;
 
@@ -133,8 +130,8 @@ always_comb begin
             end
         end
         STARTING: begin
-            rst_count = 0; // turn off reset
-            time_en = 1; // Start time counter
+            rst_count = 0;
+            time_en = 1;
             game_en = 0;
 
             if (time_count <= 8) begin
@@ -154,12 +151,12 @@ always_comb begin
                     state_d = WON;
                 end
             end else begin
-                time_en = 0; // Stop time counter
+                time_en = 0;
                 state_d = DECREMENTING;
             end
         end
         DECREMENTING: begin
-            rst_count = 1; //reset count for WRONG, CORRECT, and WON
+            rst_count = 1;
             game_en = 1;
             if (stop_i) begin
                 game_en = 0;

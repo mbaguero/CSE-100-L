@@ -14,7 +14,6 @@ module basys3_7seg_driver (
     input  logic       digit3_en_i,
     input  logic [3:0] digit3_i,
 
-    output logic dp,
     output logic [3:0] anode_o,
     output logic [6:0] segments_o
 );
@@ -22,7 +21,6 @@ module basys3_7seg_driver (
 
 
 logic [6:0] seg_n;
-assign dp = 1;
 
 hex7seg hex7seg (
     .d3(digit_q[3]),
@@ -58,7 +56,7 @@ always_comb
     begin
         digit_d = digit_q;
         anode_d = anode_q;
-        
+
         if (digit0_en_i) begin
             digit_d = digit0_i;
             anode_d[0] = 0;
