@@ -5,6 +5,7 @@ module time_counter (
     input  logic       clk_4_i,
     input  logic       rst_ni,
     input  logic       en_i,
+    input  logic       rst_count_i
     output logic [4:0] count_o
 );
 
@@ -13,7 +14,7 @@ logic [4:0] t_count_d, t_count_q;
 
 always_ff @(posedge clk_4_i)
     begin
-        if (!rst_ni) begin
+        if (!rst_ni | rst_count_i) begin
             t_count_q <= 0;
         end else begin
             t_count_q <= t_count_d;

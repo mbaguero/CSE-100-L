@@ -27,9 +27,11 @@ module stop_it import stop_it_pkg::*; (
 //TIME COUNTER
 logic time_en;
 logic [4:0] time_count;
+logic rst_count;
 
 time_counter time_counter_isnt(
     //inputs
+    .rst_count_i(rst_count)
     .rst_ni(rst_ni),
     .clk_4_i(clk_4_i),
     .en_i(time_en),
@@ -54,7 +56,7 @@ game_counter game_counter_inst(
 
 //LED SHIFTER
 logic shift_left;
-logic [15:0] switches_load = 16'b1111111111111111;
+logic [15:0] switches_load = 16'b1;
 logic led_off;
 
 led_shifter led_shifter_inst(
@@ -96,6 +98,7 @@ end
 
 always_comb begin
     state_d = state_q;
+    rst_count = 0;
     time_en =  0;
     game_en = 0;
     shift_left = 0;
@@ -103,6 +106,7 @@ always_comb begin
     
     unique case (state_q)
         WAITING_TO_START: begin
+            rst_count = 1; // turn on count reset
             time_en = 0;
             game_en = 0;
 
@@ -122,6 +126,7 @@ always_comb begin
             end
         end
         STARTING: begin
+            rst_count = 0; // turn off reset
             time_en = 1; // Start time counter
             game_en = 0;
 
@@ -138,15 +143,16 @@ always_comb begin
                 if (!rst_ni) begin
                     state_d = WAITING_TO_START;
                 end else if (load_i) begin
+                    rst_count = 1;
                     state_d = WON;
                 end
             end else begin
                 time_en = 0; // Stop time counter
-                time_count = 0;
                 state_d = DECREMENTING;
             end
         end
         DECREMENTING: begin
+            rst_count = 1; //reset count for WRONG, CORRECT, and WON
             game_en = 1;
             if (stop_i) begin
                 game_en = 0;
@@ -156,6 +162,7 @@ always_comb begin
                     state_d = WRONG;
                 end
             end else if (load_i) begin
+                game_en = 0;
                 state_d = WON;
             end else if (!rst_ni) begin
                 state_d = WAITING_TO_START;
@@ -164,6 +171,7 @@ always_comb begin
             end
         end
         WRONG: begin
+            rst_count = 0;
             time_en = 1; //figure out a way to set time counter back to 0
 
             if (time_count <= 16) begin
@@ -182,17 +190,70 @@ always_comb begin
                 if (!rst_ni) begin
                     state_d = WAITING_TO_START;
                 end else if (load_i) begin
-                    stae_d = WON;
+                    rst_count = 1;
+                    state_d = WON;
                 end
             end else begin
                 state_d = WAITING_TO_START;
             end
         end
         CORRECT: begin
-            // TODO
+            rst_count = 0;
+            time_en = 1;
+
+            shift_left = 1;
+
+            if (time_count <= 16) begin
+                if (time_count % 2) begin
+                    digit0_en_o = 1;
+                    digit1_en_o = 1;
+                    digit2_en_o = 1;
+                    digit3_en_o = 1;
+                end else begin
+                    digit0_en_o = 0;
+                    digit1_en_o = 0;
+                    digit2_en_o = 0;
+                    digit3_en_o = 0;
+                end
+
+                if (!rst_ni) begin
+                    state_d = WAITING_TO_START;
+                end else if (load_i) begin
+                    rst_count = 1;
+                    state_d = WON;
+                end
+            end else begin
+                time_en = 0;
+                if (leds_o == 65535) begin
+                    rst_count = 1;
+                    state_d = WON;
+                end else begin
+                    state_d = WAITING_TO_START;
+                end
+            end
         end
         WON: begin
-            // TODO
+            rst_count = 0;
+            time_en = 1;
+
+
+            if (time_count <= 16) begin
+                if (time_count % 2) begin
+                    digit0_en_o = 1;
+                    digit1_en_o = 1;
+                    digit2_en_o = 1;
+                    digit3_en_o = 1; 
+                    leds_o = 16'b1;
+                end else begin
+                    digit0_en_o = 0;
+                    digit1_en_o = 0;
+                    digit2_en_o = 0;
+                    digit3_en_o = 0; 
+                    leds_o = 16'b0;
+                end
+            end else begin
+                // TODO
+            end
         end
         default: begin
             state_d = WAITING_TO_START;
