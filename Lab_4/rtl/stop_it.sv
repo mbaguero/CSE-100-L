@@ -110,7 +110,6 @@ always_comb begin
     digit2_o = 0;
     digit3_en_o = 0;
     digit3_o = 0;
-    leds_o = 16'b0;
 
     unique case (state_q)
         WAITING_TO_START: begin
@@ -251,13 +250,13 @@ always_comb begin
                     digit1_en_o = 1;
                     digit2_en_o = 1;
                     digit3_en_o = 1; 
-                    leds_o = 16'b1;
+                    led_off = 1;
                 end else begin
                     digit0_en_o = 0;
                     digit1_en_o = 0;
                     digit2_en_o = 0;
                     digit3_en_o = 0; 
-                    leds_o = 16'b0;
+                    led_off = 0;
                 end
                 if (!rst_ni) begin
                     state_d = WAITING_TO_START;
