@@ -29,7 +29,7 @@ logic time_en;
 logic [4:0] time_count;
 logic rst_count;
 
-time_counter time_counter_isnt(
+time_counter time_counter_inst(
     //inputs
     .rst_count_i(rst_count)
     .rst_ni(rst_ni),
@@ -56,7 +56,6 @@ game_counter game_counter_inst(
 
 //LED SHIFTER
 logic shift_left;
-logic [15:0] switches_load = 16'b1;
 logic led_off;
 
 led_shifter led_shifter_inst(
@@ -64,7 +63,7 @@ led_shifter led_shifter_inst(
     .clk_i(clk_4_i),
     .rst_ni(rst_ni),
     .shift_i(shift_left),
-    .switches_i(switches_load),
+    .switches_i(switches_i),
     .load_i(load_i),
     .off_i(led_off),
 
@@ -75,7 +74,7 @@ led_shifter led_shifter_inst(
 //LINEAR FEEDBACK SHIFT REGISTER
 logic [4:0] rand_target_num;
 
-lfsr lfsr_isnt(
+lfsr lfsr_inst(
     //inputs
     .clk_i(clk_4_i),
     .rst_ni(rst_ni),
@@ -122,7 +121,7 @@ always_comb begin
             end else if (!rst_ni) begin
                 state_d = WAITING_TO_START;
             end else begin
-                stae_d = WAITING_TO_START;
+                state_d = WAITING_TO_START;
             end
         end
         STARTING: begin
@@ -172,7 +171,7 @@ always_comb begin
         end
         WRONG: begin
             rst_count = 0;
-            time_en = 1; //figure out a way to set time counter back to 0
+            time_en = 1;
 
             if (time_count <= 16) begin
                 if(time_count % 2) begin
@@ -251,8 +250,11 @@ always_comb begin
                     digit3_en_o = 0; 
                     leds_o = 16'b0;
                 end
-            end else begin
-                // TODO
+                if (!rst_ni) begin
+                    state_d = WAITING_TO_START;
+                end
+            end else if (!rst_count) begin
+                state_d = WAITING_TO_START;                
             end
         end
         default: begin

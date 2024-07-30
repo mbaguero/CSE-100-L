@@ -21,9 +21,6 @@ module basys3_7seg_driver (
 
 
 logic [6:0] seg_n;
-
-
-
 assign dp = 1;
 
 hex7seg hex7seg (
@@ -72,9 +69,6 @@ always_comb
             anode_d[3] = 0;
         end 
     end
-
-// RIGHT SIDE - Anode0 & Anode1 - GAME COUNTER
-// LEFT SIDE - Anode3 & Anode2 - TARGET
 
 
 assign anode_o = anode_q;
