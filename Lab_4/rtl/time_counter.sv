@@ -5,7 +5,7 @@ module time_counter (
     input  logic       clk_4_i,
     input  logic       rst_ni,
     input  logic       en_i,
-    input  logic       rst_count_i
+    input  logic       rst_count_i,
     output logic [4:0] count_o
 );
 

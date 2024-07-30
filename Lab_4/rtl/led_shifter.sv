@@ -29,6 +29,8 @@ always_ff @(posedge clk_i)
 always_comb
     begin
         shift_reg_d = shift_reg_q;
+        leds_o = 16'b0;
+        
         if (shift_i) begin
             shift_reg_d = {shift_reg_q[14:0], 1'b1};
         end else if (load_i) begin

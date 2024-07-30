@@ -31,7 +31,7 @@ logic rst_count;
 
 time_counter time_counter_inst(
     //inputs
-    .rst_count_i(rst_count)
+    .rst_count_i(rst_count),
     .rst_ni(rst_ni),
     .clk_4_i(clk_4_i),
     .en_i(time_en),
@@ -102,7 +102,16 @@ always_comb begin
     game_en = 0;
     shift_left = 0;
     led_off = 0;
-    
+    digit0_en_o = 0;
+    digit0_o = 0;
+    digit1_en_o = 0;
+    digit1_o = 0;
+    digit2_en_o = 0;
+    digit2_o = 0;
+    digit3_en_o = 0;
+    digit3_o = 0;
+    leds_o = 16'b0;
+
     unique case (state_q)
         WAITING_TO_START: begin
             rst_count = 1; // turn on count reset
