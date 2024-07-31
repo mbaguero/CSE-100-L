@@ -25,7 +25,7 @@ module stop_it import stop_it_pkg::*; (
 //TIME COUNTER
 logic time_en;
 logic [4:0] time_count;
-logic rst_count;
+//logic rst_count;
 
 time_counter time_counter_inst(
     //inputs
@@ -95,7 +95,7 @@ end
 
 always_comb begin
     state_d = state_q;
-    rst_count = 0;
+    //rst_count = 0;
     time_en =  0;
     game_en = 0;
     shift_left = 0;
@@ -111,7 +111,7 @@ always_comb begin
 
     unique case (state_q)
         WAITING_TO_START: begin
-            rst_count = 1;
+            //rst_count = 1;
             time_en = 0;
             game_en = 0;
 
@@ -131,7 +131,7 @@ always_comb begin
             end
         end
         STARTING: begin
-            rst_count = 0;
+            //rst_count = 0;
             time_en = 1;
             game_en = 0;
 
@@ -148,7 +148,7 @@ always_comb begin
                 if (!rst_ni) begin
                     state_d = WAITING_TO_START;
                 end else if (load_i) begin
-                    rst_count = 1;
+                    //rst_count = 1;
                     state_d = WON;
                 end
             end else begin
@@ -157,7 +157,7 @@ always_comb begin
             end
         end
         DECREMENTING: begin
-            rst_count = 1;
+            //rst_count = 1;
             game_en = 1;
             if (stop_i) begin
                 game_en = 0;
@@ -176,7 +176,7 @@ always_comb begin
             end
         end
         WRONG: begin
-            rst_count = 0;
+            //rst_count = 0;
             time_en = 1;
 
             if (time_count <= 16) begin
@@ -195,7 +195,7 @@ always_comb begin
                 if (!rst_ni) begin
                     state_d = WAITING_TO_START;
                 end else if (load_i) begin
-                    rst_count = 1;
+                    //rst_count = 1;
                     state_d = WON;
                 end
             end else begin
@@ -203,7 +203,7 @@ always_comb begin
             end
         end
         CORRECT: begin
-            rst_count = 0;
+            //rst_count = 0;
             time_en = 1;
 
             shift_left = 1;
@@ -224,13 +224,13 @@ always_comb begin
                 if (!rst_ni) begin
                     state_d = WAITING_TO_START;
                 end else if (load_i) begin
-                    rst_count = 1;
+                    //rst_count = 1;
                     state_d = WON;
                 end
             end else begin
                 time_en = 0;
                 if (leds_o == 65535) begin
-                    rst_count = 1;
+                    //rst_count = 1;
                     state_d = WON;
                 end else begin
                     state_d = WAITING_TO_START;
@@ -238,7 +238,7 @@ always_comb begin
             end
         end
         WON: begin
-            rst_count = 0;
+            //rst_count = 0;
             time_en = 1;
 
 
@@ -257,7 +257,7 @@ always_comb begin
                 if (!rst_ni) begin
                     state_d = WAITING_TO_START;
                 end
-            end else if (!rst_count) begin
+            end else if (!rst_ni) begin
                 state_d = WAITING_TO_START;
             end
         end
