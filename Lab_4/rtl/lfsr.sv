@@ -18,7 +18,7 @@ assign rnd_d = {rnd_q[6:0], feedback_xor};
 always_ff @(posedge clk_i )
     begin
         if (!rst_ni) begin
-            rnd_q <=8'b00000001;
+            rnd_q <= 8'b00000001;
         end else if (next_i) begin
             rnd_q <= rnd_d;
         end

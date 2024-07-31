@@ -71,12 +71,13 @@ led_shifter led_shifter_inst(
 
 //LINEAR FEEDBACK SHIFT REGISTER
 logic [4:0] rand_target_num;
+logic lfsr_en;
 
 lfsr lfsr_inst(
     //inputs
     .clk_i(clk_4_i),
     .rst_ni(rst_ni),
-    .next_i(go_i),
+    .next_i(lfsr_en),
 
     //outputs
     .rand_o(rand_target_num)
@@ -104,6 +105,8 @@ always_comb begin
     time_en =  0;
     game_en = 0;
 
+    //rand en
+    lfsr_en = 1;
 
     shift_left = 0;
 
@@ -125,6 +128,7 @@ always_comb begin
             rst_n_game_count = 0;
             time_en = 0;
             game_en = 0;
+            lfsr_en = 1;
 
             digit0_en_o = 1;
             digit0_o = game_count[3:0];
@@ -133,41 +137,29 @@ always_comb begin
 
             if (go_i) begin
                 state_d = STARTING;
-            end else if (load_i) begin
-                state_d = WAITING_TO_START;
-
-
-
-
-
-
-
-
-                           end else if (!rst_ni) begin
+            end else if (!rst_ni) begin
                 state_d = WAITING_TO_START;
             end else begin
                 state_d = WAITING_TO_START;
             end
         end
         STARTING: begin
+            lfsr_en = 0;
             rst_n_count = 1;
             rst_n_game_count = 1;
             time_en = 1;
             game_en = 0;
+            digit0_en_o = 1;
+            digit0_o = game_count[3:0];
+            digit1_en_o = 1;
+            digit1_o = {3'b0, game_count[4]};
+            digit2_en_o = 1;
+            digit2_o = rand_target_num[3:0];
+            digit3_en_o = 1;
+            digit3_o = {3'b0, rand_target_num[4]};
 
             if (time_count <= 6) begin
-                digit0_en_o = 1;
-                digit0_o = game_count[3:0];
-                digit1_en_o = 1;
-                digit1_o = {3'b0, game_count[4]};
-                digit2_en_o = 1;
-                digit2_o = rand_target_num[3:0];
-                digit3_en_o = 1;
-                digit3_o = {rand_target_num[4], 3'b0};
-
                 if (!rst_ni) begin
-                    state_d = WAITING_TO_START;
-                end else if (load_i) begin
                     state_d = WAITING_TO_START;
                 end
             end else begin
@@ -178,13 +170,10 @@ always_comb begin
             end
         end
         DECREMENTING: begin
-            if (time_count != 0) begin
-                rst_n_count = 0;
-                rst_n_game_count = 0;
-            end
+            lfsr_en = 0;
             rst_n_count = 1;
             rst_n_game_count = 1;
-            game_en = 1;
+
             digit0_en_o = 1;
             digit0_o = game_count[3:0];
             digit1_en_o = 1;
@@ -193,19 +182,16 @@ always_comb begin
             digit2_o = rand_target_num[3:0];
             digit3_en_o = 1;
             digit3_o = {3'b0, rand_target_num[4]};
+
+            game_en = 1;
+
             if (stop_i) begin
                 game_en = 0;
                 if (rand_target_num == game_count) begin
-                    rst_n_count = 0;
-                    rst_n_game_count = 0;
                     state_d = CORRECT;
-                end else begin
-                    rst_n_count = 0;
-                    rst_n_game_count = 0;
+                end else if (rand_target_num != game_count) begin
                     state_d = WRONG;
                 end
-            end else if (load_i) begin
-                state_d = WAITING_TO_START;
             end else if (!rst_ni) begin
                 state_d = WAITING_TO_START;
             end else begin
@@ -215,24 +201,32 @@ always_comb begin
         WRONG: begin
             if (time_count != 0) begin
                 rst_n_count = 0;
-                rst_n_game_count = 0;
             end
 
             rst_n_count = 1;
             rst_n_game_count = 1;
             time_en = 1;
+            lfsr_en = 0;
 
             if (time_count <= 14) begin
                 if(time_count % 2) begin
                     digit0_en_o = 1;
+                    digit0_o = game_count[3:0];
                     digit1_en_o = 1;
+                    digit1_o = {3'b0, game_count[4]};
                     digit2_en_o = 0;
+                    digit2_o = rand_target_num[3:0];
                     digit3_en_o = 0;
+                    digit3_o = {3'b0, rand_target_num[4]};
                 end else begin
                     digit0_en_o = 0;
+                    digit0_o = game_count[3:0];
                     digit1_en_o = 0;
+                    digit1_o = {3'b0, game_count[4]};
                     digit2_en_o = 1;
+                    digit2_o = rand_target_num[3:0];
                     digit3_en_o = 1;
+                    digit3_o = {3'b0, rand_target_num[4]};
                 end
 
                 if (time_count >= 15) begin
@@ -240,8 +234,6 @@ always_comb begin
                     state_d = WAITING_TO_START;
                 end
                 if (!rst_ni) begin
-                    state_d = WAITING_TO_START;
-                end else if (load_i) begin
                     state_d = WAITING_TO_START;
                 end
             end else begin
@@ -252,28 +244,34 @@ always_comb begin
         CORRECT: begin
             if (time_count != 0) begin
                 rst_n_count = 0;
-                rst_n_game_count = 0;
             end
             rst_n_count = 1;
             rst_n_game_count = 1;
             time_en = 1;
+            lfsr_en = 0;
 
             if (time_count <= 14) begin
                 if (time_count % 2) begin
                     digit0_en_o = 1;
+                    digit0_o = game_count[3:0];
                     digit1_en_o = 1;
+                    digit1_o = {3'b0, game_count[4]};
                     digit2_en_o = 1;
+                    digit2_o = rand_target_num[3:0];
                     digit3_en_o = 1;
+                    digit3_o = {3'b0, rand_target_num[4]};
                 end else begin
                     digit0_en_o = 0;
+                    digit0_o = game_count[3:0];
                     digit1_en_o = 0;
+                    digit1_o = {3'b0, game_count[4]};
                     digit2_en_o = 0;
+                    digit2_o = rand_target_num[3:0];
                     digit3_en_o = 0;
+                    digit3_o = {3'b0, rand_target_num[4]};
                 end
 
                 if (!rst_ni) begin
-                    state_d = WAITING_TO_START;
-                end else if (load_i) begin
                     state_d = WAITING_TO_START;
                 end
             end else begin
@@ -289,34 +287,19 @@ always_comb begin
             end
         end
         WON: begin
-            if (time_count != 0) begin
-                rst_n_count = 0;
-                rst_n_game_count = 0;
-            end
             rst_n_count = 1;
             rst_n_game_count = 1;
             time_en = 1;
+            lfsr_en = 0;
 
 
-            if (time_count <= 14) begin
-                if (time_count % 2) begin
-                    digit0_en_o = 1;
-                    digit1_en_o = 1;
-                    digit2_en_o = 1;
-                    digit3_en_o = 1;
-                    led_off = 1;
-                end else begin
-                    digit0_en_o = 0;
-                    digit1_en_o = 0;
-                    digit2_en_o = 0;
-                    digit3_en_o = 0;
-                    led_off = 0;
-                end
+            if (time_count % 2) begin
+                led_off = 0;
+            end else begin
+                led_off = 1;
+            end
 
-                if (!rst_ni) begin
-                    state_d = WAITING_TO_START;
-                end
-            end else if (!rst_ni) begin
+            if (!rst_ni) begin
                 state_d = WAITING_TO_START;
             end
         end
