@@ -25,12 +25,11 @@ module stop_it import stop_it_pkg::*; (
 //TIME COUNTER
 logic time_en;
 logic [4:0] time_count;
-//logic rst_count;
+logic rst_n_count;
 
 time_counter time_counter_inst(
     //inputs
-    //.rst_count_i(rst_count),
-    .rst_ni(rst_ni),
+    .rst_ni(rst_n_count),
     .clk_4_i(clk_4_i),
     .en_i(time_en),
 
@@ -41,10 +40,11 @@ time_counter time_counter_inst(
 //GAME COUNTER
 logic game_en;
 logic [4:0] game_count;
+logic rst_n_game_count;
 
 game_counter game_counter_inst(
     //inputs
-    .rst_ni(rst_ni),
+    .rst_ni(rst_n_game_count),
     .clk_4_i(clk_4_i),
     .en_i(game_en),
 
@@ -95,11 +95,21 @@ end
 
 always_comb begin
     state_d = state_q;
-    //rst_count = 0;
+
+    //timer resets
+    rst_n_count = 1;
+    rst_n_game_count = 1;
+
+    //timer enables
     time_en =  0;
     game_en = 0;
+
+
     shift_left = 0;
+
     led_off = 0;
+
+    //digits
     digit0_en_o = 0;
     digit0_o = 0;
     digit1_en_o = 0;
@@ -111,35 +121,45 @@ always_comb begin
 
     unique case (state_q)
         WAITING_TO_START: begin
-            //rst_count = 1;
+            rst_n_count = 0;
+            rst_n_game_count = 0;
             time_en = 0;
             game_en = 0;
 
             digit0_en_o = 1;
             digit0_o = game_count[3:0];
             digit1_en_o = 1;
-            digit1_o = {game_count[4], 3'b0};
+            digit1_o = {3'b0, game_count[4]};
 
             if (go_i) begin
                 state_d = STARTING;
             end else if (load_i) begin
-                state_d = WON;
-            end else if (!rst_ni) begin
+                state_d = WAITING_TO_START;
+
+
+
+
+
+
+
+
+                           end else if (!rst_ni) begin
                 state_d = WAITING_TO_START;
             end else begin
                 state_d = WAITING_TO_START;
             end
         end
         STARTING: begin
-            //rst_count = 0;
+            rst_n_count = 1;
+            rst_n_game_count = 1;
             time_en = 1;
             game_en = 0;
 
-            if (time_count <= 8) begin
+            if (time_count <= 6) begin
                 digit0_en_o = 1;
                 digit0_o = game_count[3:0];
                 digit1_en_o = 1;
-                digit1_o = {game_count[4], 3'b0};
+                digit1_o = {3'b0, game_count[4]};
                 digit2_en_o = 1;
                 digit2_o = rand_target_num[3:0];
                 digit3_en_o = 1;
@@ -148,27 +168,44 @@ always_comb begin
                 if (!rst_ni) begin
                     state_d = WAITING_TO_START;
                 end else if (load_i) begin
-                    //rst_count = 1;
-                    state_d = WON;
+                    state_d = WAITING_TO_START;
                 end
             end else begin
+                rst_n_count = 0;
+                rst_n_game_count = 0;
                 time_en = 0;
                 state_d = DECREMENTING;
             end
         end
         DECREMENTING: begin
-            //rst_count = 1;
+            if (time_count != 0) begin
+                rst_n_count = 0;
+                rst_n_game_count = 0;
+            end
+            rst_n_count = 1;
+            rst_n_game_count = 1;
             game_en = 1;
+            digit0_en_o = 1;
+            digit0_o = game_count[3:0];
+            digit1_en_o = 1;
+            digit1_o = {3'b0, game_count[4]};
+            digit2_en_o = 1;
+            digit2_o = rand_target_num[3:0];
+            digit3_en_o = 1;
+            digit3_o = {rand_target_num[4], 3'b0};
             if (stop_i) begin
                 game_en = 0;
                 if (rand_target_num == game_count) begin
+                    rst_n_count = 0;
+                    rst_n_game_count = 0;
                     state_d = CORRECT;
                 end else begin
+                    rst_n_count = 0;
+                    rst_n_game_count = 0;
                     state_d = WRONG;
                 end
             end else if (load_i) begin
-                game_en = 0;
-                state_d = WON;
+                state_d = WAITING_TO_START;
             end else if (!rst_ni) begin
                 state_d = WAITING_TO_START;
             end else begin
@@ -176,10 +213,16 @@ always_comb begin
             end
         end
         WRONG: begin
-            //rst_count = 0;
+            if (time_count != 0) begin
+                rst_n_count = 0;
+                rst_n_game_count = 0;
+            end
+
+            rst_n_count = 1;
+            rst_n_game_count = 1;
             time_en = 1;
 
-            if (time_count <= 16) begin
+            if (time_count <= 14) begin
                 if(time_count % 2) begin
                     digit0_en_o = 1;
                     digit1_en_o = 1;
@@ -192,23 +235,30 @@ always_comb begin
                     digit3_en_o = 1;
                 end
 
+                if (time_count >= 15) begin
+                    time_en = 0;
+                    state_d = WAITING_TO_START;
+                end
                 if (!rst_ni) begin
                     state_d = WAITING_TO_START;
                 end else if (load_i) begin
-                    //rst_count = 1;
-                    state_d = WON;
+                    state_d = WAITING_TO_START;
                 end
             end else begin
+                time_en = 0;
                 state_d = WAITING_TO_START;
             end
         end
         CORRECT: begin
-            //rst_count = 0;
+            if (time_count != 0) begin
+                rst_n_count = 0;
+                rst_n_game_count = 0;
+            end
+            rst_n_count = 1;
+            rst_n_game_count = 1;
             time_en = 1;
 
-            shift_left = 1;
-
-            if (time_count <= 16) begin
+            if (time_count <= 14) begin
                 if (time_count % 2) begin
                     digit0_en_o = 1;
                     digit1_en_o = 1;
@@ -224,13 +274,14 @@ always_comb begin
                 if (!rst_ni) begin
                     state_d = WAITING_TO_START;
                 end else if (load_i) begin
-                    //rst_count = 1;
-                    state_d = WON;
+                    state_d = WAITING_TO_START;
                 end
             end else begin
                 time_en = 0;
+                shift_left = 1;
                 if (leds_o == 65535) begin
-                    //rst_count = 1;
+                    rst_n_count = 0;
+                    rst_n_game_count = 0;
                     state_d = WON;
                 end else begin
                     state_d = WAITING_TO_START;
@@ -238,11 +289,16 @@ always_comb begin
             end
         end
         WON: begin
-            //rst_count = 0;
+            if (time_count != 0) begin
+                rst_n_count = 0;
+                rst_n_game_count = 0;
+            end
+            rst_n_count = 1;
+            rst_n_game_count = 1;
             time_en = 1;
 
 
-            if (time_count <= 16) begin
+            if (time_count <= 14) begin
                 if (time_count % 2) begin
                     digit0_en_o = 1;
                     digit1_en_o = 1;
@@ -253,7 +309,10 @@ always_comb begin
                     digit0_en_o = 0;
                     digit1_en_o = 0;
                     digit2_en_o = 0;
+                    digit3_en_o = 0;
+                    led_off = 0;
                 end
+
                 if (!rst_ni) begin
                     state_d = WAITING_TO_START;
                 end
