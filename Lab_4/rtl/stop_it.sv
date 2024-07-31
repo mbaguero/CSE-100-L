@@ -2,12 +2,12 @@
 // All rights reserved. Distribution Prohibited.
 
 module stop_it import stop_it_pkg::*; (
-    input  logic        rst_ni, // btnR
+    input  logic        rst_ni,
 
     input  logic        clk_4_i,
-    input  logic        go_i, // btnC
-    input  logic        stop_i, // btnU
-    input  logic        load_i, // btnC
+    input  logic        go_i,
+    input  logic        stop_i,
+    input  logic        load_i,
 
     input  logic [15:0] switches_i,
     output logic [15:0] leds_o,
@@ -29,7 +29,7 @@ logic rst_count;
 
 time_counter time_counter_inst(
     //inputs
-    .rst_count_i(rst_count),
+    //.rst_count_i(rst_count),
     .rst_ni(rst_ni),
     .clk_4_i(clk_4_i),
     .en_i(time_en),
@@ -253,8 +253,6 @@ always_comb begin
                     digit0_en_o = 0;
                     digit1_en_o = 0;
                     digit2_en_o = 0;
-                    digit3_en_o = 0;
-                    led_off = 0;
                 end
                 if (!rst_ni) begin
                     state_d = WAITING_TO_START;

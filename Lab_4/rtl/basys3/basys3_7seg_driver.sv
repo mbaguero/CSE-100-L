@@ -20,11 +20,13 @@ module basys3_7seg_driver (
 
 logic [6:0] seg_n;
 
-hex7seg hex7seg (
-    .d3(digit_q[3]),
-    .d2(digit_q[2]),
-    .d1(digit_q[1]),
-    .d0(digit_q[0]),
+logic [3:0] digit_i;
+
+hex7seg hex7seg_inst (
+    .d3(digit_i[3]),
+    .d2(digit_i[2]),
+    .d1(digit_i[1]),
+    .d0(digit_i[0]),
 
     .A(seg_n[0]),
     .B(seg_n[1]),
@@ -35,43 +37,75 @@ hex7seg hex7seg (
     .G(seg_n[6])
 );
 
-
-logic [3:0] digit_d, digit_q;
-logic [3:0] anode_d, anode_q;
+logic [3:0] count_d, count_q;
 
 always_ff @(posedge clk_1k_i)
     begin
-        if (!rst_ni) begin
-            digit_q <= 4'b0000;
-            anode_q <= 4'b1111;
+        if(!rst_ni) begin
+            count_q <= 2'b00;
         end else begin
-            digit_q <= digit_d;
-            anode_q <= anode_d;
+            count_q <= count_d;
         end
+    end
+
+assign count_d = count_q + 1;
+
+always_comb
+    begin
+        seg_n = 7'b1111111;
+        anode_o = 4'b1111;
+        digit_i = 4'b0000;
+        case (count_q)
+            2'b00: begin
+                if (digit0_en_i) begin
+                    digit_i = digit0_i;
+                    anode_o = 4'b1110;
+                    seg_n = 7'b0000000;
+                end else begin
+                    anode_o = 4'b1111;
+                end
+            end
+            2'b01: begin
+                if (digit1_en_i) begin
+                    digit_i = digit1_i;
+                    anode_o = 4'b1101;
+                    seg_n = 7'b0000000;
+                end else begin
+                    anode_o = 4'b1111;
+                end
+            end
+            2'b10: begin
+                if (digit2_en_i) begin
+                    digit_i = digit2_i;
+                    anode_o = 4'b1011;
+                    seg_n = 7'b0000000;
+                end else begin
+                    anode_o = 4'b1111;
+                end
+            end
+            2'b11: begin
+                if (digit3_en_i) begin
+                    digit_i = digit3_i;
+                    anode_o = 4'b0111;
+                    seg_n = 7'b0000000;
+                end else begin
+                    anode_o = 4'b1111;
+                end
+            end
+            default: begin
+                digit_i = 4'b0000;
+                anode_o = 4'b1111;
+            end
+        endcase
     end
 
 always_comb
     begin
-        digit_d = digit_q;
-        anode_d = anode_q;
-
-        if (digit0_en_i) begin
-            digit_d = digit0_i;
-            anode_d[0] = 0;
-        end else if (digit1_en_i) begin
-            digit_d = digit1_i;
-            anode_d[1] = 0;
-        end else if (digit2_en_i) begin
-            digit_d = digit2_i;
-            anode_d[2] = 0;
-        end else if (digit3_en_i) begin
-            digit_d = digit3_i;
-            anode_d[3] = 0;
+        if (anode_o == 4'b1111) begin
+            segments_o = 7'b1111111;
+        end else begin
+            segments_o = ~seg_n;
         end
     end
-
-
-assign anode_o = anode_q;
-assign segments_o = ~seg_n;
 
 endmodule
