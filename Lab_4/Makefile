@@ -4,14 +4,14 @@
 RTL := $(shell python3 scripts/convert_filelist.py rtl/rtl.f)
 YOSYS_DATDIR := $(shell yosys-config --datdir)
 
-TOP := lfsr_tb
+TOP := stop_it_tb
 PART := xc7a35tcpg236-1
 
 sim:
-	verilator --Mdir $@_dir -f rtl/rtl.f -f dv/dv.f --binary -Wno-fatal --top ${TOP}
-	./$@_dir/V${TOP} +verilator+rand+reset+0
-	./$@_dir/V${TOP} +verilator+rand+reset+1
-	./$@_dir/V${TOP} +verilator+rand+reset+2
+	verilator --Mdir ${TOP}_$@_dir -f rtl/rtl.f -f dv/dv.f --binary -Wno-fatal --top ${TOP}
+	./${TOP}_$@_dir/V${TOP} +verilator+rand+reset+0
+	./${TOP}_$@_dir/V${TOP} +verilator+rand+reset+1
+	./${TOP}_$@_dir/V${TOP} +verilator+rand+reset+2
 
 lint:
 	verilator --lint-only -f rtl/rtl.f -f dv/dv.f synth/basys3/basys3.sv --top basys3
@@ -22,19 +22,19 @@ lint:
 	 --autofix=inplace-interactive \
 	 ${RTL} synth/basys3/basys3.sv
 
-synth/yosys_common/build/rtl.sv: ${RTL}
+synth/yosys_common/build/rtl.sv2v.v: ${RTL} scripts/convert_filelist.py rtl/rtl.f
 	mkdir -p $(dir $@)
-	cat $^ > $@
+	sv2v ${RTL} -w $@ -DSYNTHESIS
 
-synth/yosys_common/build/synth.v: synth/yosys_common/build/rtl.sv synth/yosys_common/yosys.tcl
+synth/yosys_common/build/synth.v: synth/yosys_common/build/rtl.sv2v.v synth/yosys_common/yosys.tcl
 	rm -rf slpp_all
 	yosys -p 'tcl synth/yosys_common/yosys.tcl' -l synth/yosys_common/build/yosys.log
 
 gls: synth/yosys_common/build/synth.v
-	verilator -I${YOSYS_DATDIR} --Mdir $@_dir -f synth/yosys_common/gls.f -f dv/dv.f --binary -Wno-fatal --top ${TOP}
-	./$@_dir/V${TOP} +verilator+rand+reset+0
-	./$@_dir/V${TOP} +verilator+rand+reset+1
-	./$@_dir/V${TOP} +verilator+rand+reset+2
+	verilator -I${YOSYS_DATDIR} --Mdir ${TOP}_$@_dir -f synth/yosys_common/gls.f -f dv/dv.f --binary -Wno-fatal --top ${TOP}
+	./${TOP}_$@_dir/V${TOP} +verilator+rand+reset+0
+	./${TOP}_$@_dir/V${TOP} +verilator+rand+reset+1
+	./${TOP}_$@_dir/V${TOP} +verilator+rand+reset+2
 
 synth/basys3/build/basys3/basys3.runs/impl_1/basys3.bit: ${RTL} synth/basys3/basys3.sv synth/basys3/Basys3_Master.xdc synth/basys3/constraints.xdc synth/basys3/vivado.tcl
 	rm -rf synth/basys3/build/basys3

@@ -52,7 +52,7 @@ assign count_d = count_q + 1;
 
 always_comb
     begin
-        seg_n = 7'b1111111;
+        //seg_n = 7'b1111111;
         anode_o = 4'b1111;
         digit_i = 4'b0000;
         case (count_q)
@@ -60,7 +60,7 @@ always_comb
                 if (digit0_en_i) begin
                     digit_i = digit0_i;
                     anode_o = 4'b1110;
-                    seg_n = 7'b0000000;
+                    //seg_n = 7'b0000000;
                 end else begin
                     anode_o = 4'b1111;
                 end
@@ -69,7 +69,7 @@ always_comb
                 if (digit1_en_i) begin
                     digit_i = digit1_i;
                     anode_o = 4'b1101;
-                    seg_n = 7'b0000000;
+                    //seg_n = 7'b0000000;
                 end else begin
                     anode_o = 4'b1111;
                 end
@@ -78,7 +78,7 @@ always_comb
                 if (digit2_en_i) begin
                     digit_i = digit2_i;
                     anode_o = 4'b1011;
-                    seg_n = 7'b0000000;
+                    //seg_n = 7'b0000000;
                 end else begin
                     anode_o = 4'b1111;
                 end
@@ -87,7 +87,7 @@ always_comb
                 if (digit3_en_i) begin
                     digit_i = digit3_i;
                     anode_o = 4'b0111;
-                    seg_n = 7'b0000000;
+                    //seg_n = 7'b0000000;
                 end else begin
                     anode_o = 4'b1111;
                 end
