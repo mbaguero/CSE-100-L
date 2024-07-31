@@ -192,7 +192,7 @@ always_comb begin
             digit2_en_o = 1;
             digit2_o = rand_target_num[3:0];
             digit3_en_o = 1;
-            digit3_o = {rand_target_num[4], 3'b0};
+            digit3_o = {3'b0, rand_target_num[4]};
             if (stop_i) begin
                 game_en = 0;
                 if (rand_target_num == game_count) begin
