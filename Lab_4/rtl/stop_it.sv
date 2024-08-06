@@ -114,13 +114,13 @@ always_comb begin
 
     //digits
     digit0_en_o = 0;
-    digit0_o = 0;
+    digit0_o = game_count[3:0];
     digit1_en_o = 0;
-    digit1_o = 0;
+    digit1_o = {3'b0, game_count[4]};
     digit2_en_o = 0;
-    digit2_o = 0;
+    digit2_o = rand_target_num[3:0];
     digit3_en_o = 0;
-    digit3_o = 0;
+    digit3_o = {3'b0, rand_target_num[4]};
 
     unique case (state_q)
         WAITING_TO_START: begin
@@ -131,9 +131,7 @@ always_comb begin
             lfsr_en = 1;
 
             digit0_en_o = 1;
-            digit0_o = game_count[3:0];
             digit1_en_o = 1;
-            digit1_o = {3'b0, game_count[4]};
 
             if (go_i) begin
                 state_d = STARTING;
@@ -150,13 +148,10 @@ always_comb begin
             time_en = 1;
             game_en = 0;
             digit0_en_o = 1;
-            digit0_o = game_count[3:0];
             digit1_en_o = 1;
-            digit1_o = {3'b0, game_count[4]};
             digit2_en_o = 1;
-            digit2_o = rand_target_num[3:0];
             digit3_en_o = 1;
-            digit3_o = {3'b0, rand_target_num[4]};
+
 
             if (time_count <= 6) begin
                 if (!rst_ni) begin
@@ -175,13 +170,10 @@ always_comb begin
             rst_n_game_count = 1;
 
             digit0_en_o = 1;
-            digit0_o = game_count[3:0];
             digit1_en_o = 1;
-            digit1_o = {3'b0, game_count[4]};
-            digit2_en_o = 1;
-            digit2_o = rand_target_num[3:0];
+            digit2_en_o = 1
             digit3_en_o = 1;
-            digit3_o = {3'b0, rand_target_num[4]};
+
 
             game_en = 1;
 
@@ -211,22 +203,14 @@ always_comb begin
             if (time_count <= 14) begin
                 if(time_count % 2) begin
                     digit0_en_o = 1;
-                    digit0_o = game_count[3:0];
                     digit1_en_o = 1;
-                    digit1_o = {3'b0, game_count[4]};
                     digit2_en_o = 0;
-                    digit2_o = rand_target_num[3:0];
                     digit3_en_o = 0;
-                    digit3_o = {3'b0, rand_target_num[4]};
                 end else begin
                     digit0_en_o = 0;
-                    digit0_o = game_count[3:0];
                     digit1_en_o = 0;
-                    digit1_o = {3'b0, game_count[4]};
                     digit2_en_o = 1;
-                    digit2_o = rand_target_num[3:0];
                     digit3_en_o = 1;
-                    digit3_o = {3'b0, rand_target_num[4]};
                 end
 
                 if (time_count >= 15) begin
