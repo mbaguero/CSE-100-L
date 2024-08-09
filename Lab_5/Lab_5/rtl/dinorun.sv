@@ -273,10 +273,10 @@ always_comb
         title_en = 0;
 
         // digit enables
-        digit0_en_o = 0;
-        digit1_en_o = 0;
-        digit2_en_o = 0;
-        digit3_en_o = 0;
+        digit0_en_o = 1;
+        digit1_en_o = 1;
+        digit2_en_o = 1;
+        digit3_en_o = 1;
 
 
 
